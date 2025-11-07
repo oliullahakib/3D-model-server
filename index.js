@@ -34,6 +34,17 @@ async function run() {
         const db = client.db("3D-model")
         const modelCollection = db.collection("model")
         // model api 
+
+        app.get('/models',async(req, res) => {
+            const query = req.query.category;
+            console.log(query)
+            let filter = {}
+            if(query){
+                filter = {category:query}
+            }
+            const result = await modelCollection.find(filter).toArray()
+            res.send(result)
+        })
         app.get('/recent-model',async(req, res) => {
             const result = await modelCollection.find().sort({ created_at:-1}).limit(6).toArray()
             res.send(result)
