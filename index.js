@@ -60,6 +60,16 @@ async function run() {
             const result = await modelCollection.insertOne(newModel)
             res.send(result)
         })
+        app.put('/models/:id',async(req,res)=>{
+            const id = req.params.id
+            const newModel=req.body
+            const query = {_id:new ObjectId(id)}
+            const update = {
+                $set:newModel
+            }
+            const result = await modelCollection.updateOne(query,update)
+            res.send(result)
+        })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
