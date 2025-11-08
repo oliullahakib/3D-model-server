@@ -1,3 +1,4 @@
 .env
 *lcoal
 node_modules
+firebase-sdk-key.json
