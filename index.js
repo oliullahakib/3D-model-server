@@ -60,6 +60,7 @@ async function run() {
 
         const db = client.db("3D-model")
         const modelCollection = db.collection("model")
+        const downlodCollection = db.collection("downlods")
         // model api 
 
         app.get('/models', async (req, res) => {
@@ -82,6 +83,7 @@ async function run() {
             const result = await modelCollection.find(filter).toArray()
             res.send(result)
         })
+        
 
         app.get('/recent-model', async (req, res) => {
             const result = await modelCollection.find().sort({ created_at: -1 }).limit(6).toArray()
@@ -113,6 +115,33 @@ async function run() {
             const query = { _id: new ObjectId(id) }
             const result = await modelCollection.deleteOne(query)
             res.send(result)
+        })
+
+        // downlod api 
+        app.get('/my-downloads', verifyFirebaseToken, async (req, res) => {
+            const email = req.query.email;
+            if(req.token_email!==email){
+                return res.status(403).send("Forbidden Access")
+            }
+            let filter = {}
+            if (email) {
+                filter = { created_by: email }
+            }
+            const result = await downlodCollection.find(filter).toArray()
+            res.send(result)
+        })
+        app.post('/downlod/:id',async(req,res)=>{
+            const newDownlod = req.body;
+            const result= await downlodCollection.insertOne(newDownlod)
+
+            // inc dwonlod count 
+            const id = req.params.id
+            const query={_id:new ObjectId(id)}
+            const update={
+                $inc:{downloads:1}
+            }
+            const dwonlodCount= await modelCollection.updateOne(query,update)
+            res.send({result,dwonlodCount})
         })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
