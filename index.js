@@ -64,7 +64,12 @@ async function run() {
         // model api 
 
         app.get('/models', async (req, res) => {
-            const result = await modelCollection.find().toArray()
+            const searchValue = req.query.search;
+            let query={}
+            if(searchValue){
+                query={name:{$regex:searchValue,$options:"i"}}
+            }
+            const result = await modelCollection.find(query).toArray()
             res.send(result)
         })
         app.get('/my-models', verifyFirebaseToken, async (req, res) => {
